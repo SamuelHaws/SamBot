@@ -1,7 +1,7 @@
 #include "Arduino.h"
 #include "SoftwareSerial.h"
 #include "DFRobotDFPlayerMini.h"
-#include <AFMotor.h>
+#include <AFMotor.h> // V1
 
 // SamBot.ino
 // Author: Samuel Haws (https://github.com/SamuelHaws)
@@ -23,11 +23,11 @@ const int introAudioIdx=3; // Index of file for DFPlayer
 const int obstacleAudioIdx=2;
 const int wowAudioIdx=1;
 const int volumeLevel=23; // 0 - 30
-const int obstacleTriggerDistance=15; // cm
-const int maxTriggerCount=10; // Number of sequential "too close" distance reads to trigger obstacle
+const int obstacleTriggerDistance=17; // cm
+const int maxTriggerCount=14; // Number of sequential "too close" distance reads to trigger obstacle
 const int flashLEDDelay=75; // ms
-const int obstacleLEDTime=3000; // Duration of flashing when obstacle encountered (ms)
-const int obstacleBackwardTime=500; // Duration of backward motion when obstacle encountered (ms)
+const int obstacleLEDTime=2000; // Duration of flashing when obstacle encountered (ms)
+const int obstacleBackwardTime=250; // Duration of backward motion when obstacle encountered (ms)
 const int spinTime=2000; // ms
 ////////////////////////////////////////////////////////////////////////
 /////////////////// End Configuration Variables ////////////////////////
@@ -93,6 +93,7 @@ void loop() {
         if (digitalRead(dfBusyPin) == 1) {
           dfPlayer.play(introAudioIdx);
         }
+        break;
       case 'X':
         wow();
       default:
@@ -142,6 +143,7 @@ void handleObstacle() {
     if(elapsedTime > obstacleBackwardTime) {
       motorStop();
     }
+    // Control is returned to user once both obstacleTimes are elapsed
     if (elapsedTime > max(obstacleLEDTime, obstacleBackwardTime)) {
       break;
     }
@@ -214,7 +216,7 @@ void motorStop() {
 void wow() {
   // If DFPlayer not currently playing audio, play wow audio
   if (digitalRead(dfBusyPin) == 1) {
-    dfPlayer.play(introAudioIdx);
+    dfPlayer.play(wowAudioIdx);
   }
   motorRight();
   delay(spinTime);
